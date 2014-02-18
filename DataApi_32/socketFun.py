@@ -7,7 +7,7 @@ import copy
 import decompress
 import dataStruct
 import time
-#socketLink 代表是socket连接类
+#g_socketLink, socketLink 代表是socket连接类
 #--------------------------------
 #定义共用成员变量
 #--------------------------------
@@ -32,7 +32,13 @@ def subscibeStock(socketLink, isAllMarket, stocks):
 		stocksStr = stocksStr + stock
 	bytes = struct.pack(fmt, sn, length, isAllMarket, len(stocks), stocksStr)
 	#发送订阅代码
-	socketLink.send(bytes)
+	try:
+		socketLink.send(bytes)
+		print "SubscibeStock Successful"
+		socketLink.connectState = True
+	except Exception:
+		print "SubscibeStock Failure: send error"
+		socketLink.connectState = False
 	global g_socketLink
 	g_socketLink = socketLink
 #向服务端发送订阅请求时间段
@@ -182,13 +188,21 @@ def resolveRecvData(bufferData):
 	#解析指数数据
 	elif dataType == 5:
 		resolveIndexMarketData(bufferData)
-	#解析历史数据
+	#解析历史数据	#五档行情
 	elif dataType == 6:
+		#print bufferData[8:]
+		pass
+	#解析历史数据	#日线
+	elif dataType == 7:
+		#print bufferData[8:]
+		pass
+	#解析历史数据	#三档行情
+	elif dataType == 8:
 		#print bufferData[8:]
 		pass
 	#结束标记
 	elif dataType == 998:
-		pass
+		g_socketLink.onRtnDataEnd()
 #--------------------------------
 #接收解析socket数据，缓存拼接成完整数据
 #--------------------------------
@@ -217,12 +231,18 @@ def handleBufferData(bufferData):
 def recvSubscibeRespond(socketLink, num):
 	bufferData = ""
 	while 1:
-		recvData = socketLink.recv(BUFSIZ)
-		#如果缓冲没有数据
-		if not bufferData:
-			bufferData = recvData
-		else: #继续缓冲数据
-			bufferData = bufferData + recvData
-		#接收数据完整，处理缓冲数据
-		if checkBufferDataIsComplete(bufferData):
-			bufferData = handleBufferData(bufferData)
+		try:
+			recvData = socketLink.recv(BUFSIZ)
+			#如果缓冲没有数据
+			if not bufferData:
+				bufferData = recvData
+			else: #继续缓冲数据
+				bufferData = bufferData + recvData
+			#接收数据完整，处理缓冲数据
+			if checkBufferDataIsComplete(bufferData):
+				bufferData = handleBufferData(bufferData)
+			g_socketLink.connectState = True
+		except Exception:	#断线重连
+			print "socketFun recvSubscibeRespond: socket.error: [Error 10054]"
+			g_socketLink.connectState = False
+		
