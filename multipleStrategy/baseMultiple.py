@@ -4,8 +4,6 @@
 import sys
 sys.path.append("..")
 import baseStrategy
-import copy
-import datetime
 
 class CBaseMultiple(baseStrategy.CBaseStrategy):
 	#------------------------------
