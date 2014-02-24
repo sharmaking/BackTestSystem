@@ -17,3 +17,6 @@ class CDataServerApi(CDataApi):
 			if dataType == 3 or dataType == 4 or dataType == 5:
 				self.bufferStack["Multiple"].append((dataType,data))
 
+	def onRtnDataEnd(self):
+		print "DataEnd"
+

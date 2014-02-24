@@ -5,10 +5,11 @@ import copy
 import os
 
 class CBaseStrategy(object):
-	def __init__(self):
+	def __init__(self, stockCode):
 		super(CBaseStrategy, self).__init__()
-		self.stockCode = ""
+		self.stockCode = stockCode
 		self.customInit()
+		self.initCashe()
 		#最新数据
 		self.currentData = {}
 		#连接池，用于发送信号
@@ -22,10 +23,6 @@ class CBaseStrategy(object):
 	#------------------------------
 	#listener 调用接口
 	#------------------------------
-	#自定义对象初始化
-	def init(self, stockCode):
-		self.stockCode = stockCode
-		self.initCashe()
 	#获得连接对象
 	def getRequesHandlerObjList(self, requesHandlerObjList):
 		self.requesHandlerObjList = requesHandlerObjList

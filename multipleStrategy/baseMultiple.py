@@ -6,6 +6,8 @@ sys.path.append("..")
 import baseStrategy
 
 class CBaseMultiple(baseStrategy.CBaseStrategy):
+	def getActuatorDict(self, actuatorDict):
+		self.actuatorDict = actuatorDict
 	#------------------------------
 	#继承重载函数
 	#------------------------------
