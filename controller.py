@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #controller.py
-import copy, datetime
+import copy, datetime, multiprocessing
 import dataServerApi, dataListener, strategyActuator
 #载入策略
 import signalStrategy, multipleStrategy
@@ -64,17 +64,22 @@ def creatStrategyObject(needSignal, stock):
 def creatListener(bufferStack):
 	global g_listenerList
 	listenersNum = 3
-	perListenerStocksNum = len(g_subStocks)/listenersNum
-	print g_subStocks
-	for i in xrange(listenersNum):
-		if listenersNum - i == 1:
-			actuatorDict = creatActuators(g_subStocks[i*perListenerStocksNum:], bufferStack, True)
-			listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:], actuatorDict)
-			listener.start()
-		else:
-			actuatorDict = creatActuators(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], bufferStack, False)
-			listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], actuatorDict)
-			listener.start()
+	if len(g_subStocks) >= listenersNum:
+		perListenerStocksNum = len(g_subStocks)/listenersNum
+		for i in xrange(listenersNum):
+			if listenersNum - i == 1:
+				actuatorDict = creatActuators(g_subStocks[i*perListenerStocksNum:], bufferStack, True)
+				listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:], actuatorDict)
+				listener.start()
+			else:
+				actuatorDict = creatActuators(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], bufferStack, False)
+				listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], actuatorDict)
+				listener.start()
+			g_listenerList.append(listener)
+	else:
+		actuatorDict = creatActuators(g_subStocks, bufferStack, True)
+		listener = dataListener.CDataListerner(g_subStocks, actuatorDict)
+		listener.start()
 		g_listenerList.append(listener)
 #创建监听对象
 def creatActuators(stocks, bufferStack, isLast):
@@ -84,16 +89,15 @@ def creatActuators(stocks, bufferStack, isLast):
 	for stock in stocks:
 		strategyObjDict = creatStrategyObject(True, stock)
 		if strategyObjDict:
-			bufferStack[stock]				= []
+			bufferStack[stock]				= multiprocessing.Queue()
 			newActuator						= strategyActuator.CStrategyActuator(bufferStack[stock])
 			newActuator.getSignalStrategyObj(strategyObjDict)
 			g_StrategyActuatorDict[stock]	= newActuator
 			actuatorDict[stock] 			= newActuator
-
 	if isLast:	#多股票策略监听
 		strategyObjDict = creatStrategyObject(False, "Multiple")
 		if strategyObjDict:
-			bufferStack["Multiple"]				= []
+			bufferStack["Multiple"]				= multiprocessing.Queue()
 			newActuator							= strategyActuator.CStrategyActuator(bufferStack["Multiple"])
 			newActuator.getmultipleStrategyObj(strategyObjDict)
 			g_StrategyActuatorDict["Multiple"]	= newActuator

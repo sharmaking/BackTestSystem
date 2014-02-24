@@ -33,6 +33,6 @@ class CStrategyActuator(object):
 				multipleObj.dataListener(dataType, data)
 
 	def checkStack(self):
-		if self.bufferStack:
-			dataType, data = self.bufferStack[stock].pop(-1)
+		if not self.bufferStack.empty():
+			dataType, data = self.bufferStack.get()
 			self.dataListening(dataType, data)
