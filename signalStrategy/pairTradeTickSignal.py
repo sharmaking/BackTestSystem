@@ -11,9 +11,9 @@ class CPairTradeTickSignal(baseSignal.CBaseSignal):
 	#行情数据触发函数
 	def onRtnMarketData(self, data):
 		self.getTickData(data)
-		#print self.stockCode, data["dateTime"], data["close"]
+		#print self.stockCode, data["dateTime"], data["close"], self.currentMDDateTime
 	def dayEnd(self):
-		print "dayEnd", self.stockCode, self.currentMDDateTime
+		print "dayEnd", self.stockCode, self.tickData
 	def autosaveCache(self):
 		#self.saveCache(data = self.data)
 		pass

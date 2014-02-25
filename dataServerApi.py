@@ -10,16 +10,16 @@ class CDataServerApi(CDataApi):
 		#数据堆栈
 		self.bufferStack = {}	#每个合约一个堆栈
 		self.strategyActuatorDict = strategyActuatorDict
-		self.currentMDDateTime = datetime.datetime(1990,1,1,0,0,0)
+		self.currentDateTime = datetime.datetime(1990,1,1,0,0,0)
 	#数据接收接口
 	def onRtnDepthMarketData(self, dataType, data):
 		self.bufferStack[data["stockCode"][:6]].put((dataType,data))
 		if self.bufferStack.has_key("Multiple"):
 			if dataType == 3 or dataType == 4 or dataType == 5:
 				self.bufferStack["Multiple"].put((dataType,data))
-		if data["dateTime"].date() != self.currentMDDateTime.date():
+		if data["dateTime"].date() != self.currentDateTime.date():
 			self.onRtnDayEnd()
-		self.currentMDDateTime = copy.copy(data["dateTime"])
+		self.currentDateTime = copy.copy(data["dateTime"])
 
 	def onRtnDayEnd(self):
 		for stock, actuatorObj in self.strategyActuatorDict.items():
