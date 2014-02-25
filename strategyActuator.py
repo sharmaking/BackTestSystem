@@ -31,8 +31,16 @@ class CStrategyActuator(object):
 		else:
 			for multipleName, multipleObj in self.multipleObjDict.items():
 				multipleObj.dataListener(dataType, data)
-
+		
 	def checkStack(self):
 		if not self.bufferStack.empty():
 			dataType, data = self.bufferStack.get()
 			self.dataListening(dataType, data)
+
+	def dayEnd(self):
+		if self.type:
+			for signalName, signalObj in self.signalObjDict.items():
+				signalObj.dayEnd()
+		else:
+			for multipleName, multipleObj in self.multipleObjDict.items():
+				multipleObj.dayEnd()

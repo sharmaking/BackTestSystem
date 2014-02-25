@@ -15,3 +15,5 @@ class CDataListerner(multiprocessing.Process):
 		while 1:
 			for stock in self.stocks:
 				self.actuatorDict[stock].checkStack()
+			if self.actuatorDict.has_key("Multiple"):
+				self.actuatorDict["Multiple"].checkStack()

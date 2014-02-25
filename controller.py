@@ -20,9 +20,11 @@ g_subStocks = []
 #单只股票策略对象池
 g_SSDict = {}
 g_SSDict["baseSingal"] = signalStrategy.CBaseSignal
+g_SSDict["pairTradeTickSignal"] = signalStrategy.CPairTradeTickSignal
 #多只股票策略对象池
 g_MSDict = {}
 g_MSDict["baseMultiple"] = multipleStrategy.CBaseMultiple
+g_MSDict["pairTradeParaMultiple"] = multipleStrategy.CPairTradeParaMultiple
 #-----------------------
 #实现函数
 #-----------------------
@@ -41,7 +43,7 @@ def loadSubStocks():
 #创建数据连接对象
 def creatDataServerLink():
 	dataServerInstance = dataServerApi.CDataServerApi(HOST,PORT)
-	dataServerInstance.init()
+	dataServerInstance.init(g_StrategyActuatorDict)
 	dataServerInstance.connectServer()
 	return dataServerInstance
 #创建策略对象

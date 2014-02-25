@@ -1,27 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #pairTradeTickSignal
-import baseSignal
+import baseSignal, multiprocessing
 
 class CPairTradeTickSignal(baseSignal.CBaseSignal):
 	#自定义初始化函数
 	def customInit(self):
 		self.name = "pairTradeTickSignal"
+		self.tickData = []
 	#行情数据触发函数
 	def onRtnMarketData(self, data):
-		print self.name, "onRtnMarketData", self.stockCode, len(data)
-	#逐笔成交触发函数
-	def onRtnTradeSettlement(self, data):
-		pass #print self.name, "onRtnTradeSettlement", self.stockCode, len(data)
-	#买一队列触发函数
-	def onRtnOrderQueue(self, data):
-		pass #print self.name, "onRtnOrderQueue", self.stockCode, len(data)
-	def dayBegin(self):
-		pass
+		self.getTickData(data)
+		#print self.stockCode, data["dateTime"], data["close"]
 	def dayEnd(self):
-		pass
-	#自动保存缓存触发函数
+		print "dayEnd", self.stockCode, self.currentMDDateTime
 	def autosaveCache(self):
 		#self.saveCache(data = self.data)
 		pass
-		
+	#---------------------------------------
+	#具体实现函数
+	#---------------------------------------
+	def getTickData(self, data):
+		self.tickData.append({
+				"dateTime"		: data["dateTime"],
+				"close"			: data["close"],
+				"askPriceOne"	: data['askPrice'][0],
+				"bidPriceOne"	: data["bidPrice"][0]
+			})
+		if len(self.tickData) > 2000000:
+			del self.tickData[0]

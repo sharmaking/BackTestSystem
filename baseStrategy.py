@@ -95,8 +95,6 @@ class CBaseStrategy(object):
 	#买一队列触发函数
 	def onRtnOrderQueue(self, data):
 		pass
-	def dayBegin(self):
-		pass
 	def dayEnd(self):
 		pass
 	#自动保存缓存触发函数
