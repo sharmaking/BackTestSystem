@@ -5,10 +5,11 @@ import copy
 import os
 
 class CBaseStrategy(object):
-	def __init__(self):
+	def __init__(self, stockCode):
 		super(CBaseStrategy, self).__init__()
-		self.stockCode = ""
+		self.stockCode = stockCode
 		self.customInit()
+		self.initCashe()
 		#最新数据
 		self.currentData = {}
 		#连接池，用于发送信号
@@ -22,10 +23,6 @@ class CBaseStrategy(object):
 	#------------------------------
 	#listener 调用接口
 	#------------------------------
-	#自定义对象初始化
-	def init(self, stockCode):
-		self.stockCode = stockCode
-		self.initCashe()
 	#获得连接对象
 	def getRequesHandlerObjList(self, requesHandlerObjList):
 		self.requesHandlerObjList = requesHandlerObjList
@@ -43,9 +40,9 @@ class CBaseStrategy(object):
 				self.currentMDDateTime = copy.copy(data["dateTime"])
 				self.saveMarketData(data)
 		#自动保存缓存触发
-		if (datetime.datetime.now() - self.preSaveCacheTime)> datetime.timedelta(minutes = 5):
+		if (datetime.datetime.now() - self.preSaveCacheTime)> datetime.timedelta(minutes = 1):
 			self.autosaveCache()
-			#self.saveCache(MDList = self.MDList, TDList = self.TDList, ODList = self.ODList)
+			self.saveCacheAdd(MDList = self.MDList, TDList = self.TDList, ODList = self.ODList)
 	#------------------------------
 	#cache 相关函数
 	#------------------------------
@@ -62,6 +59,15 @@ class CBaseStrategy(object):
 	#保存缓存
 	def saveCache(self, **objDict):
 		self.cacheFile = open(self.cacheFilePath, "w")
+		content = ""
+		for key, value in objDict.items():
+			content += "self.%s = %s\n" %(key, str(value))
+		self.cacheFile.write(content)
+		self.cacheFile.close()
+		self.preSaveCacheTime = datetime.datetime.now()
+	#保存缓存
+	def saveCacheAdd(self, **objDict):
+		self.cacheFile = open(self.cacheFilePath, "a")
 		content = ""
 		for key, value in objDict.items():
 			content += "self.%s = %s\n" %(key, str(value))
@@ -98,8 +104,7 @@ class CBaseStrategy(object):
 	#买一队列触发函数
 	def onRtnOrderQueue(self, data):
 		pass
-	def dayBegin(self):
-		pass
+	#当日结束
 	def dayEnd(self):
 		pass
 	#自动保存缓存触发函数
