@@ -42,7 +42,7 @@ class CBaseStrategy(object):
 		#自动保存缓存触发
 		if (datetime.datetime.now() - self.preSaveCacheTime)> datetime.timedelta(minutes = 1):
 			self.autosaveCache()
-			self.saveCacheAdd(MDList = self.MDList, TDList = self.TDList, ODList = self.ODList)
+			#self.saveCacheAdd(MDList = self.MDList, TDList = self.TDList, ODList = self.ODList)
 	#------------------------------
 	#cache 相关函数
 	#------------------------------
@@ -106,6 +106,9 @@ class CBaseStrategy(object):
 		pass
 	#当日结束
 	def dayEnd(self):
+		pass
+	#数据结束
+	def dataEnd(self):
 		pass
 	#自动保存缓存触发函数
 	def autosaveCache(self):

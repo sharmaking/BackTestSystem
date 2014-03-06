@@ -229,10 +229,13 @@ def handleBufferData(bufferData):
 	return tempBufferData
 #监听socket缓存
 def recvSubscibeRespond(socketLink, num):
+	global g_socketLink
+	g_socketLink = socketLink
+	
 	bufferData = ""
 	while 1:
 		try:
-			recvData = socketLink.recv(BUFSIZ)
+			recvData = g_socketLink.recv(BUFSIZ)
 			#如果缓冲没有数据
 			if not bufferData:
 				bufferData = recvData
