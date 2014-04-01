@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import datetime, copy, os
-import matchesDealEngine
 
 class CBaseStrategy(object):
 	def __init__(self, stockCode):
@@ -19,8 +18,6 @@ class CBaseStrategy(object):
 		self.MDList = []			#行情数据
 		self.TDList = []			#逐笔成交数据
 		self.ODList = []			#成交队列数据
-		#交易数据
-		self.dealEngine = matchesDealEngine.CMatchesDealEngine(stockCode, self)
 	#------------------------------
 	#listener 调用接口
 	#------------------------------
@@ -30,7 +27,6 @@ class CBaseStrategy(object):
 	
 	def dataListener(self, dataType, data):
 		if dataType == 1:			#逐笔成交数据
-			self.dealEngine.onRtnTradeSettlement(data)
 			self.onRtnTradeSettlement(data)
 			self.saveTradeSettlement(data)
 		elif dataType == 2:			#报单队列
@@ -38,7 +34,6 @@ class CBaseStrategy(object):
 			self.saveOrderQuene(data)
 		else:
 			if data["dateTime"] > self.currentMDDateTime:
-				self.dealEngine.onRtnMarketData(data)
 				self.onRtnMarketData(data)
 				self.currentMDDateTime = copy.copy(data["dateTime"])
 				self.saveMarketData(data)
@@ -92,19 +87,6 @@ class CBaseStrategy(object):
 		self.ODList.append(copy.copy(data))
 		if len(self.ODList) > 300:
 			del self.ODList[0]
-	#------------------------------
-	#交易方法
-	#------------------------------
-	def buy(self, mode, price, vol, dateTime):
-		return self.dealEngine.buy(mode, price, vol, dateTime)
-	def sell(self, mode, price, vol, dateTime):
-		return self.dealEngine.sell(mode, price, vol, dateTime)
-	#报单成交明细
-	def dealed(self, dealObj, avePrice, vol, dateTime):
-		pass
-	#报单失败
-	def quotedFailed(self, failedCode):		#失败原因
-		pass
 	#------------------------------
 	#继承重载函数
 	#------------------------------
