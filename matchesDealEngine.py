@@ -75,7 +75,7 @@ class CMatchesDealEngine(object):
 		self.dealDict[tradeId] = {
 			"tradeId"	: tradeId,
 			"requstTime": dateTime,
-			"direction"	: "buy",
+			"direction"	: "sell",
 			"price"		: price,
 			"vol"		: vol,
 			"preVol"	: preVol,	#排单量
@@ -113,20 +113,20 @@ class CMatchesDealEngine(object):
 				self.dealDict[tradeId]["price"] = self.currentMDData["bidPrice"][0]
 				vol = self.currentMDData["bidVol"][0]
 				dealVol = vol
-				if dealObj["vol"] - dealObj["dealVol"] <= vol:
-					dealVol = dealObj["vol"] - dealObj["dealVol"]
-				dealObj["dealVol"] += dealVol
-				dealObj["dealDetail"].append((self.currentMDData["dateTime"], dealObj["price"], dealVol))
+				if self.dealDict[tradeId]["vol"] - self.dealDict[tradeId]["dealVol"] <= vol:
+					dealVol = self.dealDict[tradeId]["vol"] - self.dealDict[tradeId]["dealVol"]
+				self.dealDict[tradeId]["dealVol"] += dealVol
+				self.dealDict[tradeId]["dealDetail"].append((self.currentMDData["dateTime"], self.dealDict[tradeId]["price"], dealVol))
 				#更新持仓
 				self.updatePositions("sell", dealVol)
 				#记录交易日志
 				self.saveTradeLog("%s,%s,%s,改价行情撮合,卖,%f,%d,%d,成功\n"%(
-					tradeId, self.stockCode, str(self.currentMDData["dateTime"]), dealObj["price"], dealObj["vol"], dealVol))
+					tradeId, self.stockCode, str(self.currentMDData["dateTime"]), self.dealDict[tradeId]["price"], self.dealDict[tradeId]["vol"], dealVol))
 				#通知完全成交
-				if dealObj["dealVol"] == dealObj["vol"]:
-					self.dealHistory.append(dealObj)
-					self.dealed(dealObj, self.currentMDData["dateTime"])
-					del self.dealDict[dealObj["tradeId"]]
+				if self.dealDict[tradeId]["dealVol"] == self.dealDict[tradeId]["vol"]:
+					self.dealHistory.append(self.dealDict[tradeId])
+					self.dealed(self.dealDict[tradeId], self.currentMDData["dateTime"])
+					del self.dealDict[tradeId]
 		return True
 	#------------------------------
 	#报单回调
